@@ -10,359 +10,145 @@
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg:        #04090f;
-      --bg2:       #070f1a;
-      --bg3:       #0a1628;
-      --card:      #0d1e35;
-      --border:    rgba(0,180,255,0.12);
-      --accent:    #00b4ff;
-      --accent2:   #0065cc;
-      --glow:      rgba(0,180,255,0.25);
-      --text:      #dce9f5;
-      --muted:     #6a8caa;
-      --white:     #ffffff;
-      --font-head: 'Syne', sans-serif;
-      --font-body: 'DM Sans', sans-serif;
-      --font-mono: 'Space Mono', monospace;
+      --bg:#04090f; --bg2:#070f1a; --bg3:#0a1628; --card:#0d1e35;
+      --border:rgba(0,180,255,0.12); --accent:#00b4ff; --accent2:#0065cc;
+      --glow:rgba(0,180,255,0.25); --text:#dce9f5; --muted:#6a8caa; --white:#ffffff;
+      --font-head:'Syne',sans-serif; --font-body:'DM Sans',sans-serif; --font-mono:'Space Mono',monospace;
     }
-
     html { scroll-behavior: smooth; }
+    body { background:var(--bg); color:var(--text); font-family:var(--font-body); font-size:16px; line-height:1.7; overflow-x:hidden; cursor:none; }
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font-body);
-      font-size: 16px;
-      line-height: 1.7;
-      overflow-x: hidden;
-      cursor: none;
-    }
+    #cursor { position:fixed; width:12px; height:12px; background:var(--accent); border-radius:50%; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); transition:width 0.2s,height 0.2s; mix-blend-mode:screen; }
+    #cursor-ring { position:fixed; width:36px; height:36px; border:1.5px solid rgba(0,180,255,0.5); border-radius:50%; pointer-events:none; z-index:9998; transform:translate(-50%,-50%); transition:width 0.25s,height 0.25s; }
 
-    /* ─── CURSOR ───────────────────────────────────────────────── */
-    #cursor {
-      position: fixed; width: 12px; height: 12px;
-      background: var(--accent); border-radius: 50%;
-      pointer-events: none; z-index: 9999;
-      transform: translate(-50%,-50%);
-      transition: width 0.2s, height 0.2s;
-      mix-blend-mode: screen;
-    }
-    #cursor-ring {
-      position: fixed; width: 36px; height: 36px;
-      border: 1.5px solid rgba(0,180,255,0.5); border-radius: 50%;
-      pointer-events: none; z-index: 9998;
-      transform: translate(-50%,-50%);
-      transition: width 0.25s, height 0.25s;
-    }
+    body::before { content:''; position:fixed; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E"); opacity:0.03; pointer-events:none; z-index:1000; }
+    .grid-bg { position:fixed; inset:0; background-image:linear-gradient(rgba(0,180,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,180,255,0.03) 1px,transparent 1px); background-size:60px 60px; pointer-events:none; z-index:0; }
 
-    /* ─── NOISE + GRID ─────────────────────────────────────────── */
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
-      opacity: 0.03; pointer-events: none; z-index: 1000;
-    }
-    .grid-bg {
-      position: fixed; inset: 0;
-      background-image:
-        linear-gradient(rgba(0,180,255,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,180,255,0.03) 1px, transparent 1px);
-      background-size: 60px 60px;
-      pointer-events: none; z-index: 0;
-    }
+    header { position:sticky; top:0; z-index:100; display:flex; align-items:center; padding:18px 60px; background:rgba(4,9,15,0.85); backdrop-filter:blur(18px); border-bottom:1px solid var(--border); gap:24px; }
+    .header-photo { width:52px; height:52px; border-radius:50%; border:2px solid var(--accent); box-shadow:0 0 16px var(--glow); flex-shrink:0; background:var(--card); overflow:hidden; display:flex; align-items:center; justify-content:center; font-size:22px; }
+    .header-photo img { width:100%; height:100%; object-fit:cover; }
+    .header-identity { flex:1; text-align:center; }
+    .header-identity h1 { font-family:var(--font-head); font-size:1.25rem; font-weight:800; letter-spacing:0.04em; color:var(--white); }
+    .header-identity span { font-family:var(--font-mono); font-size:0.65rem; color:var(--accent); letter-spacing:0.12em; text-transform:uppercase; }
+    .back-btn { display:flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:0.65rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); text-decoration:none; border:1px solid var(--border); padding:8px 16px; border-radius:6px; transition:all 0.25s; white-space:nowrap; }
+    .back-btn:hover { color:var(--accent); border-color:var(--accent); background:rgba(0,180,255,0.06); }
 
-    /* ─── HEADER ───────────────────────────────────────────────── */
-    header {
-      position: sticky; top: 0; z-index: 100;
-      display: flex; align-items: center;
-      padding: 18px 60px;
-      background: rgba(4,9,15,0.85);
-      backdrop-filter: blur(18px);
-      border-bottom: 1px solid var(--border);
-      gap: 24px;
-    }
-    .header-photo {
-      width: 52px; height: 52px; border-radius: 50%;
-      border: 2px solid var(--accent);
-      box-shadow: 0 0 16px var(--glow); flex-shrink: 0;
-      background: var(--card); overflow: hidden;
-      display: flex; align-items: center; justify-content: center; font-size: 22px;
-    }
-    .header-photo img { width: 100%; height: 100%; object-fit: cover; }
-    .header-identity { flex: 1; text-align: center; }
-    .header-identity h1 {
-      font-family: var(--font-head); font-size: 1.25rem;
-      font-weight: 800; letter-spacing: 0.04em; color: var(--white);
-    }
-    .header-identity span {
-      font-family: var(--font-mono); font-size: 0.65rem;
-      color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase;
-    }
-    .back-btn {
-      display: flex; align-items: center; gap: 8px;
-      font-family: var(--font-mono); font-size: 0.65rem;
-      letter-spacing: 0.12em; text-transform: uppercase;
-      color: var(--muted); text-decoration: none;
-      border: 1px solid var(--border); padding: 8px 16px;
-      border-radius: 6px; transition: all 0.25s; white-space: nowrap;
-    }
-    .back-btn:hover { color: var(--accent); border-color: var(--accent); background: rgba(0,180,255,0.06); }
+    .page-hero { position:relative; z-index:1; padding:100px 60px 60px; max-width:1200px; margin:0 auto; animation:fadeDown 0.8s ease both; }
+    .page-hero-tag { font-family:var(--font-mono); font-size:0.65rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--accent); margin-bottom:16px; display:flex; align-items:center; gap:14px; }
+    .page-hero-tag::after { content:''; height:1px; flex:1; background:linear-gradient(to right,var(--border),transparent); }
+    .page-hero h2 { font-family:var(--font-head); font-size:clamp(2.2rem,5vw,4rem); font-weight:800; color:var(--white); letter-spacing:-0.02em; line-height:1.1; margin-bottom:24px; }
+    .page-hero h2 span { color:var(--accent); }
+    .page-hero-intro { font-size:1.05rem; color:var(--muted); font-weight:300; max-width:680px; line-height:1.9; }
 
-    /* ─── PAGE HERO ────────────────────────────────────────────── */
-    .page-hero {
-      position: relative; z-index: 1;
-      padding: 100px 60px 60px;
-      max-width: 1200px; margin: 0 auto;
-      animation: fadeDown 0.8s ease both;
-    }
-    .page-hero-tag {
-      font-family: var(--font-mono); font-size: 0.65rem;
-      letter-spacing: 0.25em; text-transform: uppercase;
-      color: var(--accent); margin-bottom: 16px;
-      display: flex; align-items: center; gap: 14px;
-    }
-    .page-hero-tag::after {
-      content: ''; height: 1px; flex: 1;
-      background: linear-gradient(to right, var(--border), transparent);
-    }
-    .page-hero h2 {
-      font-family: var(--font-head);
-      font-size: clamp(2.2rem, 5vw, 4rem);
-      font-weight: 800; color: var(--white);
-      letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 24px;
-    }
-    .page-hero h2 span { color: var(--accent); }
-    .page-hero-intro {
-      font-size: 1.05rem; color: var(--muted);
-      font-weight: 300; max-width: 680px; line-height: 1.9;
-    }
+    .divider { width:100%; height:1px; background:linear-gradient(to right,transparent,var(--border),transparent); }
 
-    @keyframes fadeDown {
-      from { opacity: 0; transform: translateY(-20px); }
-      to   { opacity: 1; transform: none; }
-    }
+    .section-label { font-family:var(--font-mono); font-size:0.65rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--accent); margin-bottom:50px; display:flex; align-items:center; gap:14px; }
+    .section-label::after { content:''; height:1px; flex:1; background:linear-gradient(to right,var(--border),transparent); }
 
-    /* ─── DIVIDER ──────────────────────────────────────────────── */
-    .divider {
-      width: 100%; height: 1px;
-      background: linear-gradient(to right, transparent, var(--border), transparent);
-    }
+    /* ─── PROJECT ITEMS ─── */
+    .proj-section { position:relative; z-index:1; padding:80px 60px; max-width:1200px; margin:0 auto; }
 
-    /* ─── SECTION LABEL ────────────────────────────────────────── */
-    .section-label {
-      font-family: var(--font-mono); font-size: 0.65rem;
-      letter-spacing: 0.25em; text-transform: uppercase;
-      color: var(--accent); margin-bottom: 50px;
-      display: flex; align-items: center; gap: 14px;
-    }
-    .section-label::after {
-      content: ''; height: 1px; flex: 1;
-      background: linear-gradient(to right, var(--border), transparent);
-    }
+    .proj-item { display:grid; grid-template-columns:1fr 1fr; gap:70px; align-items:center; margin-bottom:110px; position:relative; }
+    .proj-item:last-child { margin-bottom:0; }
+    .proj-item .proj-img { order:1; } .proj-item .proj-body { order:2; }
+    .proj-item.reverse .proj-img { order:2; } .proj-item.reverse .proj-body { order:1; }
+    .proj-item::after { content:''; position:absolute; bottom:-55px; left:0; right:0; height:1px; background:linear-gradient(to right,transparent,var(--border),transparent); }
+    .proj-item:last-child::after { display:none; }
 
-    /* ─── PROJECT ITEMS ────────────────────────────────────────── */
-    .proj-section {
-      position: relative; z-index: 1;
-      padding: 80px 60px;
-      max-width: 1200px; margin: 0 auto;
-    }
+    .proj-img { border-radius:20px; overflow:hidden; border:1px solid var(--border); aspect-ratio:16/10; background:var(--card); display:flex; align-items:center; justify-content:center; font-size:72px; position:relative; transition:border-color 0.35s,box-shadow 0.35s,transform 0.35s; }
+    .proj-img:hover { border-color:rgba(0,180,255,0.35); box-shadow:0 20px 60px rgba(0,80,180,0.25); transform:scale(1.02); }
+    .proj-img img { width:100%; height:100%; object-fit:cover; transition:transform 0.5s ease; }
+    .proj-img:hover img { transform:scale(1.05); }
+    .proj-img-overlay { position:absolute; inset:0; background:linear-gradient(135deg,rgba(0,100,200,0.15),transparent); pointer-events:none; }
+    .proj-img::before { content:''; position:absolute; top:14px; left:14px; width:28px; height:28px; border-top:2px solid var(--accent); border-left:2px solid var(--accent); border-radius:3px 0 0 0; opacity:0.5; z-index:2; transition:opacity 0.3s; }
+    .proj-img::after { content:''; position:absolute; bottom:14px; right:14px; width:28px; height:28px; border-bottom:2px solid var(--accent); border-right:2px solid var(--accent); border-radius:0 0 3px 0; opacity:0.5; z-index:2; transition:opacity 0.3s; }
+    .proj-img:hover::before, .proj-img:hover::after { opacity:1; }
 
-    .proj-item {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 70px;
-      align-items: center;
-      margin-bottom: 110px;
-      position: relative;
-    }
-    .proj-item:last-child { margin-bottom: 0; }
+    .proj-live-badge { position:absolute; top:16px; right:16px; z-index:3; display:flex; align-items:center; gap:6px; padding:5px 12px; background:rgba(4,9,15,0.75); backdrop-filter:blur(8px); border:1px solid rgba(0,180,255,0.25); border-radius:999px; font-family:var(--font-mono); font-size:0.6rem; letter-spacing:0.12em; color:var(--accent); text-transform:uppercase; }
+    .proj-live-dot { width:6px; height:6px; border-radius:50%; background:var(--accent); box-shadow:0 0 6px var(--accent); animation:blink 2s ease-in-out infinite; }
+    @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
 
-    .proj-item .proj-img  { order: 1; }
-    .proj-item .proj-body { order: 2; }
-    .proj-item.reverse .proj-img  { order: 2; }
-    .proj-item.reverse .proj-body { order: 1; }
+    /* code badge — amber/orange tint */
+    .proj-code-badge { position:absolute; top:16px; right:16px; z-index:3; display:flex; align-items:center; gap:6px; padding:5px 12px; background:rgba(4,9,15,0.75); backdrop-filter:blur(8px); border:1px solid rgba(255,180,0,0.3); border-radius:999px; font-family:var(--font-mono); font-size:0.6rem; letter-spacing:0.12em; color:#ffb400; text-transform:uppercase; }
+    .proj-code-dot { width:6px; height:6px; border-radius:50%; background:#ffb400; box-shadow:0 0 6px #ffb400; }
 
-    .proj-item::after {
-      content: '';
-      position: absolute;
-      bottom: -55px; left: 0; right: 0;
-      height: 1px;
-      background: linear-gradient(to right, transparent, var(--border), transparent);
-    }
-    .proj-item:last-child::after { display: none; }
+    .proj-number { font-family:var(--font-mono); font-size:0.6rem; letter-spacing:0.2em; color:var(--accent); text-transform:uppercase; margin-bottom:10px; display:flex; align-items:center; gap:10px; }
+    .proj-number::after { content:''; height:1px; width:36px; background:var(--accent); opacity:0.4; }
+    .proj-title { font-family:var(--font-head); font-size:1.4rem; font-weight:800; color:var(--white); line-height:1.2; margin-bottom:6px; }
+    .proj-type { font-family:var(--font-mono); font-size:0.7rem; letter-spacing:0.1em; color:var(--accent); text-transform:uppercase; margin-bottom:20px; opacity:0.8; }
+    .proj-desc { font-size:0.92rem; color:var(--muted); font-weight:300; line-height:1.85; margin-bottom:24px; }
+    .proj-desc strong { color:var(--text); font-weight:500; }
+    .proj-tags { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:24px; }
+    .proj-tag { padding:5px 12px; background:rgba(0,180,255,0.06); border:1px solid rgba(0,180,255,0.12); border-radius:6px; font-size:0.72rem; color:var(--text); font-family:var(--font-mono); transition:all 0.2s; }
+    .proj-tag:hover { background:rgba(0,180,255,0.14); border-color:var(--accent); color:var(--accent); }
+    .proj-link { display:inline-flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:0.68rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--accent); text-decoration:none; border-bottom:1px solid rgba(0,180,255,0.3); padding-bottom:2px; transition:border-color 0.2s,gap 0.2s; }
+    .proj-link:hover { border-color:var(--accent); gap:12px; }
 
-    /* IMAGE */
-    .proj-img {
-      border-radius: 20px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-      aspect-ratio: 16/10;
-      background: var(--card);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 72px;
-      position: relative;
-      transition: border-color 0.35s, box-shadow 0.35s, transform 0.35s;
-    }
-    .proj-img:hover {
-      border-color: rgba(0,180,255,0.35);
-      box-shadow: 0 20px 60px rgba(0,80,180,0.25);
-      transform: scale(1.02);
-    }
-    .proj-img img {
-      width: 100%; height: 100%; object-fit: cover;
-      transition: transform 0.5s ease;
-    }
-    .proj-img:hover img { transform: scale(1.05); }
-    .proj-img-overlay {
-      position: absolute; inset: 0;
-      background: linear-gradient(135deg, rgba(0,100,200,0.15), transparent);
-      pointer-events: none;
-    }
+    /* ─── CODE TOOLS SECTION ─── */
+    .code-section { position:relative; z-index:1; padding:80px 60px; max-width:1200px; margin:0 auto; }
+    .code-section-header { margin-bottom:70px; }
+    .code-section-header h2 { font-family:var(--font-head); font-size:clamp(1.8rem,3.5vw,2.8rem); font-weight:800; color:var(--white); letter-spacing:-0.02em; margin-bottom:16px; }
+    .code-section-header h2 span { color:#ffb400; }
+    .code-section-header p { font-size:0.95rem; color:var(--muted); font-weight:300; max-width:640px; line-height:1.9; }
 
-    /* corner accents */
-    .proj-img::before {
-      content: '';
-      position: absolute; top: 14px; left: 14px;
-      width: 28px; height: 28px;
-      border-top: 2px solid var(--accent);
-      border-left: 2px solid var(--accent);
-      border-radius: 3px 0 0 0;
-      opacity: 0.5; z-index: 2; transition: opacity 0.3s;
-    }
-    .proj-img::after {
-      content: '';
-      position: absolute; bottom: 14px; right: 14px;
-      width: 28px; height: 28px;
-      border-bottom: 2px solid var(--accent);
-      border-right: 2px solid var(--accent);
-      border-radius: 0 0 3px 0;
-      opacity: 0.5; z-index: 2; transition: opacity 0.3s;
-    }
-    .proj-img:hover::before,
-    .proj-img:hover::after { opacity: 1; }
+    /* code items reuse proj-item layout */
+    .code-item { display:grid; grid-template-columns:1fr 1fr; gap:70px; align-items:center; margin-bottom:110px; position:relative; }
+    .code-item:last-child { margin-bottom:0; }
+    .code-item .code-img { order:1; } .code-item .code-body { order:2; }
+    .code-item.reverse .code-img { order:2; } .code-item.reverse .code-body { order:1; }
+    .code-item::after { content:''; position:absolute; bottom:-55px; left:0; right:0; height:1px; background:linear-gradient(to right,transparent,rgba(255,180,0,0.1),transparent); }
+    .code-item:last-child::after { display:none; }
 
-    /* live badge over image */
-    .proj-live-badge {
-      position: absolute; top: 16px; right: 16px; z-index: 3;
-      display: flex; align-items: center; gap: 6px;
-      padding: 5px 12px;
-      background: rgba(4,9,15,0.75);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(0,180,255,0.25);
-      border-radius: 999px;
-      font-family: var(--font-mono); font-size: 0.6rem;
-      letter-spacing: 0.12em; color: var(--accent);
-      text-transform: uppercase;
-    }
-    .proj-live-dot {
-      width: 6px; height: 6px; border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 6px var(--accent);
-      animation: blink 2s ease-in-out infinite;
-    }
-    @keyframes blink {
-      0%, 100% { opacity: 1; } 50% { opacity: 0.3; }
-    }
+    .code-img { border-radius:20px; overflow:hidden; border:1px solid rgba(255,180,0,0.1); aspect-ratio:16/10; background:var(--card); display:flex; align-items:center; justify-content:center; font-size:72px; position:relative; transition:border-color 0.35s,box-shadow 0.35s,transform 0.35s; }
+    .code-img:hover { border-color:rgba(255,180,0,0.3); box-shadow:0 20px 60px rgba(180,120,0,0.15); transform:scale(1.02); }
+    .code-img img { width:100%; height:100%; object-fit:cover; transition:transform 0.5s ease; }
+    .code-img:hover img { transform:scale(1.05); }
+    .code-img-overlay { position:absolute; inset:0; background:linear-gradient(135deg,rgba(180,120,0,0.1),transparent); pointer-events:none; }
+    .code-img::before { content:''; position:absolute; top:14px; left:14px; width:28px; height:28px; border-top:2px solid #ffb400; border-left:2px solid #ffb400; border-radius:3px 0 0 0; opacity:0.4; z-index:2; transition:opacity 0.3s; }
+    .code-img::after { content:''; position:absolute; bottom:14px; right:14px; width:28px; height:28px; border-bottom:2px solid #ffb400; border-right:2px solid #ffb400; border-radius:0 0 3px 0; opacity:0.4; z-index:2; transition:opacity 0.3s; }
+    .code-img:hover::before, .code-img:hover::after { opacity:1; }
 
-    /* BODY */
-    .proj-number {
-      font-family: var(--font-mono); font-size: 0.6rem;
-      letter-spacing: 0.2em; color: var(--accent);
-      text-transform: uppercase; margin-bottom: 10px;
-      display: flex; align-items: center; gap: 10px;
-    }
-    .proj-number::after {
-      content: ''; height: 1px; width: 36px;
-      background: var(--accent); opacity: 0.4;
-    }
-    .proj-title {
-      font-family: var(--font-head); font-size: 1.4rem;
-      font-weight: 800; color: var(--white);
-      line-height: 1.2; margin-bottom: 6px;
-    }
-    .proj-type {
-      font-family: var(--font-mono); font-size: 0.7rem;
-      letter-spacing: 0.1em; color: var(--accent);
-      text-transform: uppercase; margin-bottom: 20px; opacity: 0.8;
-    }
-    .proj-desc {
-      font-size: 0.92rem; color: var(--muted);
-      font-weight: 300; line-height: 1.85; margin-bottom: 24px;
-    }
-    .proj-desc strong { color: var(--text); font-weight: 500; }
+    .code-number { font-family:var(--font-mono); font-size:0.6rem; letter-spacing:0.2em; color:#ffb400; text-transform:uppercase; margin-bottom:10px; display:flex; align-items:center; gap:10px; }
+    .code-number::after { content:''; height:1px; width:36px; background:#ffb400; opacity:0.4; }
+    .code-title { font-family:var(--font-head); font-size:1.35rem; font-weight:800; color:var(--white); line-height:1.2; margin-bottom:6px; }
+    .code-type { font-family:var(--font-mono); font-size:0.7rem; letter-spacing:0.1em; color:#ffb400; text-transform:uppercase; margin-bottom:20px; opacity:0.8; }
+    .code-desc { font-size:0.92rem; color:var(--muted); font-weight:300; line-height:1.85; margin-bottom:24px; }
+    .code-desc strong { color:var(--text); font-weight:500; }
+    .code-tags { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:24px; }
+    .code-tag { padding:5px 12px; background:rgba(255,180,0,0.05); border:1px solid rgba(255,180,0,0.15); border-radius:6px; font-size:0.72rem; color:var(--text); font-family:var(--font-mono); transition:all 0.2s; }
+    .code-tag:hover { background:rgba(255,180,0,0.12); border-color:#ffb400; color:#ffb400; }
+    .code-badge { position:absolute; top:16px; right:16px; z-index:3; display:flex; align-items:center; gap:6px; padding:5px 12px; background:rgba(4,9,15,0.8); backdrop-filter:blur(8px); border:1px solid rgba(255,180,0,0.3); border-radius:999px; font-family:var(--font-mono); font-size:0.6rem; letter-spacing:0.12em; color:#ffb400; text-transform:uppercase; }
+    .code-badge-dot { width:6px; height:6px; border-radius:50%; background:#ffb400; }
+    .code-indev-badge { border-color:rgba(150,100,255,0.4); color:#a97fff; }
+    .code-indev-badge .code-badge-dot { background:#a97fff; animation:blink 2s ease-in-out infinite; }
 
-    .proj-tags {
-      display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px;
-    }
-    .proj-tag {
-      padding: 5px 12px;
-      background: rgba(0,180,255,0.06);
-      border: 1px solid rgba(0,180,255,0.12);
-      border-radius: 6px;
-      font-size: 0.72rem; color: var(--text);
-      font-family: var(--font-mono);
-      transition: all 0.2s;
-    }
-    .proj-tag:hover {
-      background: rgba(0,180,255,0.14);
-      border-color: var(--accent); color: var(--accent);
-    }
+    /* ─── SCROLL REVEAL ─── */
+    .reveal { opacity:0; transform:translateY(36px); transition:opacity 0.7s ease,transform 0.7s ease; }
+    .reveal.from-left { transform:translateX(-40px); }
+    .reveal.from-right { transform:translateX(40px); }
+    .reveal.visible { opacity:1; transform:none; }
+    .reveal-delay-1 { transition-delay:0.15s; }
 
-    .proj-link {
-      display: inline-flex; align-items: center; gap: 8px;
-      font-family: var(--font-mono); font-size: 0.68rem;
-      letter-spacing: 0.12em; text-transform: uppercase;
-      color: var(--accent); text-decoration: none;
-      border-bottom: 1px solid rgba(0,180,255,0.3);
-      padding-bottom: 2px;
-      transition: border-color 0.2s, gap 0.2s;
-    }
-    .proj-link:hover { border-color: var(--accent); gap: 12px; }
+    @keyframes fadeDown { from{opacity:0;transform:translateY(-20px);} to{opacity:1;transform:none;} }
 
-    /* ─── SCROLL REVEAL ────────────────────────────────────────── */
-    .reveal {
-      opacity: 0; transform: translateY(36px);
-      transition: opacity 0.7s ease, transform 0.7s ease;
-    }
-    .reveal.from-left  { transform: translateX(-40px); }
-    .reveal.from-right { transform: translateX(40px); }
-    .reveal.visible { opacity: 1; transform: none; }
-    .reveal-delay-1 { transition-delay: 0.15s; }
+    footer { position:relative; z-index:1; border-top:1px solid var(--border); padding:40px 60px; display:flex; justify-content:space-between; align-items:center; gap:24px; flex-wrap:wrap; }
+    .footer-name { font-family:var(--font-head); font-size:1rem; font-weight:700; color:var(--white); }
+    .footer-links { display:flex; gap:28px; list-style:none; }
+    .footer-links a { font-family:var(--font-mono); font-size:0.68rem; letter-spacing:0.1em; color:var(--muted); text-decoration:none; text-transform:uppercase; transition:color 0.2s; }
+    .footer-links a:hover { color:var(--accent); }
+    .footer-copy { font-size:0.72rem; color:var(--muted); font-family:var(--font-mono); }
 
-    /* ─── FOOTER ───────────────────────────────────────────────── */
-    footer {
-      position: relative; z-index: 1;
-      border-top: 1px solid var(--border);
-      padding: 40px 60px;
-      display: flex; justify-content: space-between;
-      align-items: center; gap: 24px; flex-wrap: wrap;
-    }
-    .footer-name {
-      font-family: var(--font-head); font-size: 1rem;
-      font-weight: 700; color: var(--white);
-    }
-    .footer-links { display: flex; gap: 28px; list-style: none; }
-    .footer-links a {
-      font-family: var(--font-mono); font-size: 0.68rem;
-      letter-spacing: 0.1em; color: var(--muted);
-      text-decoration: none; text-transform: uppercase; transition: color 0.2s;
-    }
-    .footer-links a:hover { color: var(--accent); }
-    .footer-copy { font-size: 0.72rem; color: var(--muted); font-family: var(--font-mono); }
-
-    /* ─── RESPONSIVE ───────────────────────────────────────────── */
-    @media (max-width: 820px) {
-      header { padding: 14px 24px; }
-      .page-hero, .proj-section { padding-left: 24px; padding-right: 24px; }
-      .proj-item, .proj-item.reverse { grid-template-columns: 1fr; gap: 32px; }
-      .proj-item .proj-img,
-      .proj-item.reverse .proj-img  { order: 1; }
-      .proj-item .proj-body,
-      .proj-item.reverse .proj-body { order: 2; }
-      footer { flex-direction: column; text-align: center; padding: 30px 24px; }
-      .footer-links { justify-content: center; }
+    @media (max-width:820px) {
+      header { padding:14px 24px; }
+      .page-hero,.proj-section,.code-section { padding-left:24px; padding-right:24px; }
+      .proj-item,.proj-item.reverse,.code-item,.code-item.reverse { grid-template-columns:1fr; gap:32px; }
+      .proj-item .proj-img,.proj-item.reverse .proj-img { order:1; }
+      .proj-item .proj-body,.proj-item.reverse .proj-body { order:2; }
+      .code-item .code-img,.code-item.reverse .code-img { order:1; }
+      .code-item .code-body,.code-item.reverse .code-body { order:2; }
+      footer { flex-direction:column; text-align:center; padding:30px 24px; }
+      .footer-links { justify-content:center; }
     }
   </style>
 </head>
@@ -372,7 +158,6 @@
   <div id="cursor"></div>
   <div id="cursor-ring"></div>
 
-  <!-- ─── HEADER ─────────────────────────────────────────────── -->
   <header>
     <div class="header-photo">
       <img src="photo.jpg" alt="Carlos" onerror="this.style.display='none';this.parentNode.innerHTML='👤';" />
@@ -384,205 +169,221 @@
     <a class="back-btn" href="index.html">← Back</a>
   </header>
 
-  <!-- ─── PAGE HERO ───────────────────────────────────────────── -->
   <div class="page-hero">
     <p class="page-hero-tag">Apps & Tools</p>
     <h2>Projects &<br /><span>Applications</span></h2>
     <p class="page-hero-intro">
-    From the lab bench to the clinic, from the classroom to the data pipeline - these are applications built to solve real problems. Each project was developed from scratch, driven by a simple question: what tool do researchers, doctors, and educators actually need?
-    The result is a collection of full-stack web apps and desktop tools that combine scientific domain knowledge with modern software engineering - clean architecture, real-time interfaces, and AI where it makes sense.
+      From the lab bench to the clinic, from the classroom to the data pipeline — these are applications built to solve real problems. Each project was developed from scratch, driven by a simple question: what tool do researchers, doctors, and educators actually need? The result is a collection of full-stack web apps and desktop tools that combine scientific domain knowledge with modern software engineering — clean architecture, real-time interfaces, and AI where it makes sense.
     </p>
   </div>
 
   <div class="divider"></div>
 
-  <!-- ─── PROJECT ITEMS ────────────────────────────────────────── -->
+  <!-- ─── PROJECTS ──────────────────────────────────────────────── -->
   <section class="proj-section">
     <p class="section-label reveal">Built by me</p>
 
-    <!-- PROJECT 1 — image LEFT -->
+    <!-- PROJECT 1 -->
     <div class="proj-item reveal">
       <div class="proj-img reveal from-left">
-        <!-- 📝 Replace with: <img src="proj1.jpg" alt="Project 1"> -->
-        🧪
+        <img src="proj1.jpg" alt="MediCal" onerror="this.style.display='none';this.parentNode.innerHTML='🧪';" />
         <div class="proj-img-overlay"></div>
         <div class="proj-live-badge"><span class="proj-live-dot"></span>Live</div>
       </div>
       <div class="proj-body reveal from-right reveal-delay-1">
         <p class="proj-number">01</p>
-        <h3 class="proj-title"> Medical Appointment Manager </h3>
-        <p class="proj-type">Type: Medicine · Web App</p>
+        <h3 class="proj-title">MediCal — Medical Appointment Manager</h3>
+        <p class="proj-type">Medicine · Web App</p>
         <p class="proj-desc">
-          <strong> Description: A full-stack web application for managing medical appointments in clinical environments.  </strong> Doctors and admins can define their availability, and patients can book slots based on appointment type and duration - with automatic conflict detection.
-        Features role-based authentication (admin / doctor), multi-doctor support, and a smart scheduling engine that prevents overlaps in real time.
+          <strong>A full-stack web application for managing medical appointments in clinical environments.</strong> Doctors and admins can define their availability, and patients can book slots based on appointment type and duration — with automatic conflict detection. Features role-based authentication (admin / doctor), multi-doctor support, and a smart scheduling engine that prevents overlaps in real time.
         </p>
         <div class="proj-tags">
           <span class="proj-tag">Python</span>
-          <span class="proj-tag"> Flask</span>
-          <span class="proj-tag"> SQLite</span>
+          <span class="proj-tag">Flask</span>
+          <span class="proj-tag">Pandas</span>
+          <span class="proj-tag">SQLite</span>
+          <span class="proj-tag">Auth</span>
+          <span class="proj-tag">Medical</span>
         </div>
         <a class="proj-link" href="#" target="_blank">View App →</a>
       </div>
     </div>
 
-    <!-- PROJECT 2 — image RIGHT -->
+    <!-- PROJECT 2 -->
     <div class="proj-item reverse reveal">
       <div class="proj-img reveal from-right">
-        🩺
+        <img src="proj2.jpg" alt="UrgenciasControl" onerror="this.style.display='none';this.parentNode.innerHTML='🩺';" />
         <div class="proj-img-overlay"></div>
         <div class="proj-live-badge"><span class="proj-live-dot"></span>Live</div>
       </div>
       <div class="proj-body reveal from-left reveal-delay-1">
         <p class="proj-number">02</p>
-        <h3 class="proj-title">Emergency Room Dashboard</h3>
+        <h3 class="proj-title">UrgenciasControl — Emergency Room Dashboard</h3>
         <p class="proj-type">Medicine · Web App</p>
         <p class="proj-desc">
-          <strong>A real-time emergency room management system for tracking patients from arrival to discharge  </strong> Each patient is assigned a triage level (red, yellow, green), and staff can log clinical notes, request tests, and mark results as they come in.
-          Includes a built-in day simulator to stress-test the system with realistic ER scenarios and concurrent patient flows
+          <strong>A real-time emergency room management system for tracking patients from arrival to discharge.</strong> Each patient is assigned a triage level (red, yellow, green), and staff can log clinical notes, request tests, and mark results as they come in. Includes a built-in day simulator to stress-test the system with realistic ER scenarios and concurrent patient flows.
         </p>
         <div class="proj-tags">
           <span class="proj-tag">Python</span>
-          <span class="proj-tag"> Flask</span>
-          <span class="proj-tag"> SQLite</span>
+          <span class="proj-tag">Flask</span>
+          <span class="proj-tag">SQLite</span>
+          <span class="proj-tag">Real-time</span>
+          <span class="proj-tag">Triage</span>
         </div>
         <a class="proj-link" href="#" target="_blank">View App →</a>
       </div>
     </div>
 
-    <!-- PROJECT 3 — image LEFT -->
+    <!-- PROJECT 3 -->
     <div class="proj-item reveal">
       <div class="proj-img reveal from-left">
-        ⚗️
+        <img src="proj3.jpg" alt="TeamControl" onerror="this.style.display='none';this.parentNode.innerHTML='⚗️';" />
         <div class="proj-img-overlay"></div>
         <div class="proj-live-badge"><span class="proj-live-dot"></span>Live</div>
       </div>
       <div class="proj-body reveal from-right reveal-delay-1">
         <p class="proj-number">03</p>
-        <h3 class="proj-title">Automated Shift Planner </h3>
+        <h3 class="proj-title">TeamControl — Automated Shift Planner</h3>
         <p class="proj-type">Healthcare · Web App</p>
         <p class="proj-desc">
-          <strong> A workforce scheduling platform that automatically generates monthly shift rosters for medical or operational teams  </strong> The algorithm respects each worker's shift preferences, approved vacation days, public holidays, and configurable minimum staffing rules per shift type. Admins can review, adjust, and export the final schedule as a PDF report
+          <strong>A workforce scheduling platform that automatically generates monthly shift rosters for medical or operational teams.</strong> The algorithm respects each worker's shift preferences, approved vacation days, public holidays, and configurable minimum staffing rules per shift type. Admins can review, adjust, and export the final schedule as a PDF report.
         </p>
         <div class="proj-tags">
           <span class="proj-tag">Python</span>
-          <span class="proj-tag"> Flask</span>
-          <span class="proj-tag"> SQLite</span>
+          <span class="proj-tag">Flask</span>
+          <span class="proj-tag">Pandas</span>
+          <span class="proj-tag">Algorithm</span>
+          <span class="proj-tag">PDF Export</span>
         </div>
         <a class="proj-link" href="#" target="_blank">View App →</a>
       </div>
     </div>
 
-    <!-- PROJECT 4 — image RIGHT -->
+    <!-- PROJECT 4 -->
     <div class="proj-item reverse reveal">
       <div class="proj-img reveal from-right">
-        🤖
+        <img src="proj4.jpg" alt="GenControl" onerror="this.style.display='none';this.parentNode.innerHTML='🤖';" />
         <div class="proj-img-overlay"></div>
         <div class="proj-live-badge"><span class="proj-live-dot"></span>Live</div>
       </div>
       <div class="proj-body reveal from-left reveal-delay-1">
         <p class="proj-number">04</p>
-        <h3 class="proj-title">Universal Inventory Manager</h3>
+        <h3 class="proj-title">GenControl — Universal Inventory Manager</h3>
         <p class="proj-type">Lab & Science · Web App</p>
         <p class="proj-desc">
-          <strong>  A flexible inventory management system that adapts to any Excel file — no fixed schema required  </strong> Upload your spreadsheet, map your columns (stock, expiry date, units, identifier), and the app auto-configures the interface. Includes a live dashboard, movement history, stock alerts, multi-user access control, data export, and automated backups. Designed for research labs, clinics, or any team managing consumables and equipment
+          <strong>A flexible inventory management system that adapts to any Excel file — no fixed schema required.</strong> Upload your spreadsheet, map your columns (stock, expiry date, units, identifier), and the app auto-configures the interface. Includes a live dashboard, movement history, stock alerts, multi-user access control, data export, and automated backups. Designed for research labs, clinics, or any team managing consumables and equipment.
         </p>
         <div class="proj-tags">
           <span class="proj-tag">Python</span>
-          <span class="proj-tag">Dashboard</span>
+          <span class="proj-tag">Flask</span>
+          <span class="proj-tag">Pandas</span>
           <span class="proj-tag">Excel</span>
+          <span class="proj-tag">Dashboard</span>
+          <span class="proj-tag">Multi-user</span>
         </div>
         <a class="proj-link" href="#" target="_blank">View App →</a>
       </div>
     </div>
 
-    <!-- PROJECT 5 — image LEFT -->
+    <!-- PROJECT 5 -->
     <div class="proj-item reveal">
       <div class="proj-img reveal from-left">
-        📊
+        <img src="proj5.jpg" alt="LabDevice" onerror="this.style.display='none';this.parentNode.innerHTML='📊';" />
         <div class="proj-img-overlay"></div>
         <div class="proj-live-badge"><span class="proj-live-dot"></span>Live</div>
       </div>
       <div class="proj-body reveal from-right reveal-delay-1">
         <p class="proj-number">05</p>
-        <h3 class="proj-title">Real-Time Lab Instrument Monitor</h3>
+        <h3 class="proj-title">LabDevice — Real-Time Lab Instrument Monitor</h3>
         <p class="proj-type">Science · Web App</p>
         <p class="proj-desc">
-          <strong>  A real-time monitoring platform for laboratory instruments </strong> onnect multiple devices simultaneously — each running in its own thread — via Serial, Modbus, MQTT, or simulation mode. Live readings are streamed to the browser via WebSockets, with a configurable alert system that triggers when variables exceed defined thresholds. Supports instrument recipes, report generation, and a full device catalog with per-equipment variable profiles
+          <strong>A real-time monitoring platform for laboratory instruments.</strong> Connect multiple devices simultaneously — each running in its own thread — via Serial, Modbus, MQTT, or simulation mode. Live readings are streamed to the browser via WebSockets, with a configurable alert system that triggers when variables exceed defined thresholds. Supports instrument recipes, report generation, and a full device catalog with per-equipment variable profiles.
         </p>
         <div class="proj-tags">
           <span class="proj-tag">Python</span>
           <span class="proj-tag">Flask</span>
-          <span class="proj-tag">SQLAlchemy</span>
           <span class="proj-tag">SocketIO</span>
+          <span class="proj-tag">SQLAlchemy</span>
+          <span class="proj-tag">Modbus</span>
+          <span class="proj-tag">MQTT</span>
         </div>
         <a class="proj-link" href="#" target="_blank">View App →</a>
       </div>
     </div>
 
-    <!-- PROJECT 6 — image RIGHT -->
+    <!-- PROJECT 6 -->
     <div class="proj-item reverse reveal">
       <div class="proj-img reveal from-right">
-        🌍
+        <img src="proj6.jpg" alt="DoctorAI" onerror="this.style.display='none';this.parentNode.innerHTML='🌍';" />
         <div class="proj-img-overlay"></div>
         <div class="proj-live-badge"><span class="proj-live-dot"></span>Live</div>
       </div>
       <div class="proj-body reveal from-left reveal-delay-1">
         <p class="proj-number">06</p>
-        <h3 class="proj-title">Medical Lab Report Analyser</h3>
-        <p class="proj-type">edicine · Desktop App</p>
+        <h3 class="proj-title">DoctorAI — Medical Lab Report Analyser</h3>
+        <p class="proj-type">Medicine · Desktop App</p>
         <p class="proj-desc">
-          <strong>  A professional desktop application for analysing medical lab reports from PDF files. </strong> It automatically extracts blood test values, compares them against reference ranges, and colour-codes each result — green (normal), yellow (borderline), red (out of range). Includes an integrated medical calculator covering glomerular filtration rate (CKD-EPI), BMI, and cardiovascular risk score. Results can be exported to structured Excel reports for longitudinal patient follow-up
+          <strong>A professional desktop application for analysing medical lab reports from PDF files.</strong> It automatically extracts blood test values, compares them against reference ranges, and colour-codes each result — green (normal), yellow (borderline), red (out of range). Includes an integrated medical calculator covering glomerular filtration rate (CKD-EPI), BMI, and cardiovascular risk score. Results can be exported to structured Excel reports for longitudinal patient follow-up.
         </p>
         <div class="proj-tags">
           <span class="proj-tag">Python</span>
+          <span class="proj-tag">PyQt5</span>
           <span class="proj-tag">PySide6</span>
+          <span class="proj-tag">PDF Extraction</span>
           <span class="proj-tag">Medical AI</span>
+          <span class="proj-tag">Excel Export</span>
         </div>
         <a class="proj-link" href="#" target="_blank">View App →</a>
       </div>
     </div>
 
-    <!-- PROJECT 7 — image LEFT -->
+    <!-- PROJECT 7 -->
     <div class="proj-item reveal">
       <div class="proj-img reveal from-left">
-        🔬
+        <img src="proj7.jpg" alt="InteractionTool" onerror="this.style.display='none';this.parentNode.innerHTML='🔬';" />
         <div class="proj-img-overlay"></div>
         <div class="proj-live-badge"><span class="proj-live-dot"></span>Live</div>
       </div>
       <div class="proj-body reveal from-right reveal-delay-1">
         <p class="proj-number">07</p>
-        <h3 class="proj-title">Patient & Drug Interaction Manager</h3>
+        <h3 class="proj-title">InteractionTool — Patient & Drug Interaction Manager</h3>
         <p class="proj-type">Medicine · Desktop App</p>
         <p class="proj-desc">
-          <strong> A desktop clinical management tool for tracking patients and detecting drug interactions. </strong> Each patient gets a dedicated Excel record where medical tests (PDF analytics, diagnostic images) can be attached and organised. A built-in chronological diary logs consultation notes. The drug interaction engine cross-references the patient's medication list to flag conflicts and suggest safer alternatives. Generates complete Word patient reports.
+          <strong>A desktop clinical management tool for tracking patients and detecting drug interactions.</strong> Each patient gets a dedicated Excel record where medical tests (PDF analytics, diagnostic images) can be attached and organised. A built-in chronological diary logs consultation notes. The drug interaction engine cross-references the patient's medication list to flag conflicts and suggest safer alternatives. Generates complete Word patient reports.
         </p>
         <div class="proj-tags">
           <span class="proj-tag">Python</span>
           <span class="proj-tag">PyQt5</span>
-          <span class="proj-tag">DrugInteractions</span>
+          <span class="proj-tag">Pandas</span>
+          <span class="proj-tag">Drug Interactions</span>
+          <span class="proj-tag">Excel</span>
+          <span class="proj-tag">Word Reports</span>
         </div>
         <a class="proj-link" href="#" target="_blank">View App →</a>
       </div>
     </div>
 
-    <!-- PROJECT 8 — image RIGHT -->
+    <!-- PROJECT 8 -->
     <div class="proj-item reverse reveal">
       <div class="proj-img reveal from-right">
-        ⚡
+        <img src="proj8.jpg" alt="ProfeApp" onerror="this.style.display='none';this.parentNode.innerHTML='⚡';" />
         <div class="proj-img-overlay"></div>
         <div class="proj-live-badge"><span class="proj-live-dot"></span>Live</div>
       </div>
       <div class="proj-body reveal from-left reveal-delay-1">
         <p class="proj-number">08</p>
-        <h3 class="proj-title">AI-Powered Teacher Management Platform</h3>
+        <h3 class="proj-title">ProfeApp — AI-Powered Teacher Management Platform</h3>
         <p class="proj-type">Education · Web App</p>
         <p class="proj-desc">
-          <strong>   A full-stack web platform for teachers to manage their entire workflow — students, subjects, exams, grades, agenda, and statistics — all in one place.  </strong> The standout feature is an AI-powered autocorrection engine using Google Gemini Vision: upload a photo of a student's handwritten exam alongside the solution, and the AI grades it automatically applying configurable criteria, partial scoring, and strictness levels. Generates PDF reports per student.
+          <strong>A full-stack web platform for teachers to manage their entire workflow — students, subjects, exams, grades, agenda, and statistics — all in one place.</strong> The standout feature is an AI-powered autocorrection engine using Google Gemini Vision: upload a photo of a student's handwritten exam alongside the solution, and the AI grades it automatically applying configurable criteria, partial scoring, and strictness levels. Generates PDF reports per student.
         </p>
         <div class="proj-tags">
           <span class="proj-tag">Python</span>
+          <span class="proj-tag">Flask</span>
           <span class="proj-tag">Gemini Vision</span>
-          <span class="proj-tag">AI autocorrection</span>
+          <span class="proj-tag">AI Autocorrection</span>
+          <span class="proj-tag">Pandas</span>
+          <span class="proj-tag">PDF Reports</span>
         </div>
         <a class="proj-link" href="#" target="_blank">View App →</a>
       </div>
@@ -590,7 +391,121 @@
 
   </section>
 
-  <!-- ─── FOOTER ───────────────────────────────────────────────── -->
+  <div class="divider"></div>
+
+  <!-- ─── CODE TOOLS ─────────────────────────────────────────────── -->
+  <section class="code-section">
+    <div class="code-section-header reveal">
+      <p class="section-label">Scientific Code</p>
+      <h2>Code <span>Tools</span></h2>
+      <p>Beyond applications, science lives in pipelines, scripts, and models. These are the computational tools developed for real research problems — from high-throughput quantum chemistry workflows to production ML pipelines and materials discovery platforms.</p>
+    </div>
+
+    <!-- CODE 1 -->
+    <div class="code-item reveal">
+      <div class="code-img reveal from-left">
+        <img src="code1.jpg" alt="DFT Suite" onerror="this.style.display='none';this.parentNode.innerHTML='⚛️';" />
+        <div class="code-img-overlay"></div>
+        <div class="code-badge"><span class="code-badge-dot"></span>Python Scripts</div>
+      </div>
+      <div class="code-body reveal from-right reveal-delay-1">
+        <p class="code-number">01</p>
+        <h3 class="code-title">DFT Computational Chemistry Suite</h3>
+        <p class="code-type">Gaussian & ORCA · High-throughput</p>
+        <p class="code-desc">
+          <strong>A complete Python toolkit for high-throughput quantum chemistry workflows.</strong> Automates input file generation for Gaussian and ORCA from molecule lists, parses output files extracting energies, HOMO/LUMO, frequencies and atomic charges, and computes a full set of electronic molecular descriptors — ionisation potential, chemical hardness, electrofilicity index, and solvation energies. Includes a substituent generator that combinatorially builds and screens thousands of functionalised derivatives.
+        </p>
+        <div class="code-tags">
+          <span class="code-tag">Python</span>
+          <span class="code-tag">DFT</span>
+          <span class="code-tag">Gaussian</span>
+          <span class="code-tag">ORCA</span>
+          <span class="code-tag">RDKit</span>
+          <span class="code-tag">PubChemPy</span>
+          <span class="code-tag">High-throughput</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CODE 2 -->
+    <div class="code-item reverse reveal">
+      <div class="code-img reveal from-right">
+        <img src="code2.jpg" alt="MOF-PFAS" onerror="this.style.display='none';this.parentNode.innerHTML='🧲';" />
+        <div class="code-img-overlay"></div>
+        <div class="code-badge"><span class="code-badge-dot"></span>Full Stack API</div>
+      </div>
+      <div class="code-body reveal from-left reveal-delay-1">
+        <p class="code-number">02</p>
+        <h3 class="code-title">MOF-PFAS Adsorption Explorer</h3>
+        <p class="code-type">Materials Science · REST API · ICMM-CSIC Madrid</p>
+        <p class="code-desc">
+          <strong>A full-stack REST API and visual explorer for Metal-Organic Framework (MOF) adsorption data of PFAS contaminants, developed as a prototype for ICMM-CSIC Madrid.</strong> The FastAPI backend connects to a PostgreSQL database of MOF/PFAS pairs with DFT-D3 adsorption energies, exposing endpoints for filtering, heatmap generation, and statistics. A self-contained frontend visualises the data interactively. Fully containerised with Docker Compose.
+        </p>
+        <div class="code-tags">
+          <span class="code-tag">Python</span>
+          <span class="code-tag">FastAPI</span>
+          <span class="code-tag">PostgreSQL</span>
+          <span class="code-tag">SQLAlchemy</span>
+          <span class="code-tag">Docker</span>
+          <span class="code-tag">Chart.js</span>
+          <span class="code-tag">Materials Science</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CODE 3 -->
+    <div class="code-item reveal">
+      <div class="code-img reveal from-left">
+        <img src="code3.jpg" alt="CO2 ML Pipeline" onerror="this.style.display='none';this.parentNode.innerHTML='🌿';" />
+        <div class="code-img-overlay"></div>
+        <div class="code-badge"><span class="code-badge-dot"></span>ML Pipeline</div>
+      </div>
+      <div class="code-body reveal from-right reveal-delay-1">
+        <p class="code-number">03</p>
+        <h3 class="code-title">CO2 Uptake Prediction & Inverse Design Pipeline</h3>
+        <p class="code-type">Machine Learning · CSIC-INCAR</p>
+        <p class="code-desc">
+          <strong>A production-ready machine learning pipeline developed at CSIC-INCAR for predicting CO2 uptake from biomass-derived materials.</strong> Trains and tunes Random Forest and XGBoost models using Optuna (100+ trials), with full SHAP analysis, RFECV feature selection, and partial dependence plots. Includes a multi-objective inverse design engine (NSGA-II, Bayesian, CMA-ES) that finds optimal material conditions for maximum CO2 capture, and a Streamlit dashboard for interactive exploration without code.
+        </p>
+        <div class="code-tags">
+          <span class="code-tag">Python</span>
+          <span class="code-tag">Scikit-learn</span>
+          <span class="code-tag">XGBoost</span>
+          <span class="code-tag">Optuna</span>
+          <span class="code-tag">SHAP</span>
+          <span class="code-tag">NSGA-II</span>
+          <span class="code-tag">Streamlit</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CODE 4 — In Development -->
+    <div class="code-item reverse reveal">
+      <div class="code-img reveal from-right">
+        <img src="code4.jpg" alt="Materials Project" onerror="this.style.display='none';this.parentNode.innerHTML='🏗️';" />
+        <div class="code-img-overlay"></div>
+        <div class="code-badge code-indev-badge"><span class="code-badge-dot"></span>In Development</div>
+      </div>
+      <div class="code-body reveal from-left reveal-delay-1">
+        <p class="code-number">04</p>
+        <h3 class="code-title">Materials Property Prediction Platform</h3>
+        <p class="code-type">Materials Science · ML · Industry</p>
+        <p class="code-desc">
+          <strong>An end-to-end platform bridging industrial experimental data with machine learning to predict mechanical properties of materials — starting with Young's modulus.</strong> Industry partners contribute experimental measurements (stress-strain curves, material composition) which are stored in a structured database. A trained ML model then predicts target properties for new materials on demand, accelerating materials discovery and qualification without costly physical testing.
+        </p>
+        <div class="code-tags">
+          <span class="code-tag">Python</span>
+          <span class="code-tag">Machine Learning</span>
+          <span class="code-tag">Materials DB</span>
+          <span class="code-tag">Young's Modulus</span>
+          <span class="code-tag">Industry</span>
+          <span class="code-tag">Prediction API</span>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
   <footer>
     <div class="footer-name">Carlos de la Cruz Pérez</div>
     <ul class="footer-links">
@@ -601,7 +516,6 @@
     <span class="footer-copy">© 2026 · Built with purpose</span>
   </footer>
 
-  <!-- ─── SCRIPTS ──────────────────────────────────────────────── -->
   <script>
     const cursor = document.getElementById('cursor');
     const ring   = document.getElementById('cursor-ring');
@@ -615,21 +529,12 @@
       ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
       requestAnimationFrame(animRing);
     })();
-    document.querySelectorAll('a, .proj-img').forEach(el => {
-      el.addEventListener('mouseenter', () => {
-        cursor.style.width = '20px'; cursor.style.height = '20px';
-        ring.style.width = '56px';  ring.style.height = '56px';
-      });
-      el.addEventListener('mouseleave', () => {
-        cursor.style.width = '12px'; cursor.style.height = '12px';
-        ring.style.width = '36px';  ring.style.height = '36px';
-      });
+    document.querySelectorAll('a, .proj-img, .code-img').forEach(el => {
+      el.addEventListener('mouseenter', () => { cursor.style.width='20px'; cursor.style.height='20px'; ring.style.width='56px'; ring.style.height='56px'; });
+      el.addEventListener('mouseleave', () => { cursor.style.width='12px'; cursor.style.height='12px'; ring.style.width='36px'; ring.style.height='36px'; });
     });
-
     const observer = new IntersectionObserver(entries => {
-      entries.forEach(e => {
-        if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
-      });
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
     }, { threshold: 0.1 });
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   </script>
